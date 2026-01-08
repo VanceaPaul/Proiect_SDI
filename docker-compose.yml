@@ -1,0 +1,43 @@
+services:
+  backend:
+    build: ./backend
+    container_name: dechat-backend
+    ports:
+      - '4000:4000'
+    env_file:
+      - ./backend/.env.example
+    volumes:
+      - backend-data:/app/data
+    depends_on:
+      - coturn
+
+  frontend:
+    build: ./frontend
+    container_name: dechat-frontend
+    ports:
+      - '5173:4173'
+    environment:
+      - VITE_SIGNALING_URL=ws://backend:4000/ws
+      - VITE_SIGNALING_API_KEY=dev-api-key
+      - VITE_API_BASE_URL=http://backend:4000/api
+    depends_on:
+      - backend
+
+  coturn:
+    image: coturn/coturn:latest
+    container_name: dechat-coturn
+    command:
+      - "--log-file=stdout"
+      - "--lt-cred-mech"
+      - "--fingerprint"
+      - "--use-auth-secret"
+      - "--static-auth-secret=turn-secret"
+      - "--realm=dechat"
+      - "--no-cli"
+    ports:
+      - '3478:3478'
+    environment:
+      - TURN_REALM=dechat
+
+volumes:
+  backend-data:

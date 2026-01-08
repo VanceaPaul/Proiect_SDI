@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: dechat-config
+  labels:
+    app: dechat
+data:
+  PORT: "4000"
+  SQLITE_PATH: /data/messages.sqlite
+  ALLOWED_ORIGINS: http://dechat-frontend
+  TURN_SERVER_URL: turn:turn.dechat.svc.cluster.local:3478
+  TURN_SERVER_USERNAME: turn-user

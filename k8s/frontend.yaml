@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dechat-frontend
+  labels:
+    app: dechat
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: dechat
+      tier: frontend
+  template:
+    metadata:
+      labels:
+        app: dechat
+        tier: frontend
+    spec:
+      containers:
+        - name: frontend
+          image: your-dockerhub-user/dechat-frontend:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 4173
+          env:
+            - name: VITE_SIGNALING_URL
+              value: ws://dechat-backend:4000/ws
+            - name: VITE_SIGNALING_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: dechat-secrets
+                  key: SIGNALING_API_KEY
+            - name: VITE_API_BASE_URL
+              value: http://dechat-backend:4000/api
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: dechat-frontend
+  labels:
+    app: dechat
+spec:
+  selector:
+    app: dechat
+    tier: frontend
+  ports:
+    - name: http
+      port: 80
+      targetPort: 4173
+  type: ClusterIP

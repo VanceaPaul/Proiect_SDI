@@ -1,0 +1,32 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: dechat-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: 8m
+spec:
+  rules:
+    - host: dechat.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: dechat-frontend
+                port:
+                  number: 80
+          - path: /api
+            pathType: Prefix
+            backend:
+              service:
+                name: dechat-backend
+                port:
+                  number: 4000
+          - path: /ws
+            pathType: Prefix
+            backend:
+              service:
+                name: dechat-backend
+                port:
+                  number: 4000

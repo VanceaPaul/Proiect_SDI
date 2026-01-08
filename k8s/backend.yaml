@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dechat-backend
+  labels:
+    app: dechat
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: dechat
+      tier: backend
+  template:
+    metadata:
+      labels:
+        app: dechat
+        tier: backend
+    spec:
+      containers:
+        - name: backend
+          image: your-dockerhub-user/dechat-backend:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 4000
+          envFrom:
+            - configMapRef:
+                name: dechat-config
+            - secretRef:
+                name: dechat-secrets
+          volumeMounts:
+            - name: message-store
+              mountPath: /data
+      volumes:
+        - name: message-store
+          emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: dechat-backend
+  labels:
+    app: dechat
+spec:
+  selector:
+    app: dechat
+    tier: backend
+  ports:
+    - name: http
+      port: 4000
+      targetPort: 4000
